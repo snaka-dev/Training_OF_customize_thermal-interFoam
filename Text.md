@@ -507,7 +507,10 @@ http://www.openfoam.org/docs/user/compiling-applications.php
 
 paraFoam で可視化した結果の一例
 ![Alt text](./images/alphaInitialCondition.png "initial condition - alpha")
+Figure   Initial condition - alpha
 
 ![Alt text](./images/tempInitialCondition.png "initial condition - temperature")
+Figure   Initial condition - temp
 
 ![Alt text](./images/temp_vector.png "high-temperature region and velocity vector")
+Figure   High-temperature region and velocity vector map
