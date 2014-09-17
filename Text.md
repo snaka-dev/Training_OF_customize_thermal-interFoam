@@ -3,10 +3,19 @@
 
 ## 目的 ##
 
+　OpenFOAM の標準ソルバ・標準ライブラリの改造に挑戦し，OpenFOAMのプログラミングについて学習する。
+
 ## 環境 ##
 
 　この資料は，OpenFOAM 2.3.0 を基準として作成した。
 
+## 想定する受講者・前提知識 ##
+
+　OpenFOAMのごく基本的な事を知っている。（例題の1つや2つを実行したことがある。）
+　
+　何らかのプログラミング言語を学習したことがあり，プログラミングに関する基本的な知識がある。（変数，関数，型，などの基礎知識）
+　
+　Linuxの端末上で，ごく基本的な操作ができる。（テキストに書いてあることをタイプして実行できる。）
 
 ## 参考情報 ##
 [Adding temperature to InterFOAM, with edited source code (OpenFOAM v. 2.3.0); Damiano Natali (Wolf dynamics).](http://www.wolfdynamics.com/conferences-and-publications.html "Adding temperature to InterFOAM, with edited source code (OpenFOAM v. 2.3.0)")
