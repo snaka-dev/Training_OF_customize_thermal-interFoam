@@ -373,7 +373,7 @@ TEqn.solve();
     EXE = $(FOAM_USER_APPBIN)/interTempFoam
 
 
-### Make/options の修正？？
+### Make/options の修正
 
 　先に作成したライブラリを参照するように，Make/optionsファイルの4行目を下記に修正する。（$(LIB_SRC)を$(WM_PROJECT_USER_DIR)/src に変更する。）
 
