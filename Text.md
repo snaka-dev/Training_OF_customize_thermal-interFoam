@@ -17,6 +17,8 @@
 
 　Linuxの端末上で，ごく基本的な操作ができる。（テキストに書いてあることをタイプして実行できる。）
 
+　Linux上で，ファイルのコピーや移動ができる。　
+
 ## 参考情報 ##
 [Adding temperature to InterFOAM, with edited source code (OpenFOAM v. 2.3.0); Damiano Natali (Wolf dynamics).](http://www.wolfdynamics.com/conferences-and-publications.html "Adding temperature to InterFOAM, with edited source code (OpenFOAM v. 2.3.0)")
 
