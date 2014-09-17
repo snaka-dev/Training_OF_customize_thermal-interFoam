@@ -32,16 +32,36 @@ https://github.com/snaka-dev/Training_begineer_OpenFOAM_Customize/blob/master/Te
 
 
 <a name="tableOfContents"></a>
-## 手順 ##
+## 目次 ##
 
 [環境変数の確認](#checkEnvVariables)
 
-1.   [ライブラリの改造	](#modifyLibrary)
-
+1.   [ライブラリの改造](#modifyLibrary)
+  1. 標準ライブラリのファイルをコピー
+  2. myIncompressibleTwoPhaseMixture.H の修正
+  3. myIncompressibleTwoPhaseMixture.C の修正
+      - コンストラクタの修正
+      - read()関数の修正
+  4. Make/files の修正とコンパイル
 2.   [ソルバの修正](#modifySolver)
-
+  1. 標準ソルバのファイルをコピー
+  2. interTempFoam.C の修正
+  3. createFields.H の修正
+  4. alphaEqnSubCycle.H の修正
+  5. alphaEqn.H の修正
+  6. TEqn.H の修正
+  7. Make/files の修正
+  8. Make/options の修正
+  9. コンパイル
 3.   [サンプルケースの作成	](#createSampleCase)
-
+  1. 標準チュートリアルのファイルをコピー
+  2. constant/transportProperties ファイルの修正
+  3. 0/T ファイルの作成
+  4. system/controlDict
+  5. system/fvSchemes ファイルの修正
+  6. system/fvSolution ファイルの修正
+  7. system/setFieldsDict ファイルの修正
+  8. 実行スクリプト Allrun と Allclean の修正
 4.   [計算の実行](#tutorial)
 
 
@@ -100,10 +120,11 @@ FOAM_USER_APPBIN
 <a name="modifyLibrary"></a>
 ## ライブラリの改造
 
-$WM_PROJECT_USER_DIR の下に src/transportModels/ ディレクトリを作成する
-ここに、$FOAM_SRC/transportModels/incompressible の内容をコピーする。
-そこにある incompressibleTwoPhaseMixture を改造するため、 myIncompressibleTwoPhaseMixture という名前に変換する。
-また，コンパイル時に必要なため，$FOAM_SRC/transportModels/twoPhaseMixtureもコピーする。
+　本章では，標準ライブラリ incompressibleTwoPhaseMixture をベースとして，新たに温度に関する情報を取り扱うことが可能なライブラリ myIncompressibleTwoPhaseMixture を作成する。
+
+### 標準ライブラリ ソースコードのコピー
+
+　$WM_PROJECT_USER_DIR の下に src/transportModels/ ディレクトリを作成する。ここに、$FOAM_SRC/transportModels/incompressible の内容をコピーする。また，コンパイル時に必要なため，$FOAM_SRC/transportModels/twoPhaseMixtureもコピーする。
 
 >    cd $WM_PROJECT_USER_DIR
 
@@ -115,10 +136,10 @@ $WM_PROJECT_USER_DIR の下に src/transportModels/ ディレクトリを作成�
 
 >    cp -rp $FOAM_SRC/transportModels/twoPhaseMixture .
 
-> cd incompressible
 
-*元情報は改造なのでmvしている。今回は，新しいライブラリを作るので，cpに変更する。 * 
-元情報    mv incompressibleTwoPhaseMixture myIncompressibleTwoPhaseMixture
+　コピーした incompressibleTwoPhaseMixture を改造するため、 myIncompressibleTwoPhaseMixture という名前に変換する。
+
+>    cd incompressible
 
 >    cp -r incompressibleTwoPhaseMixture myIncompressibleTwoPhaseMixture
 
@@ -127,30 +148,30 @@ $WM_PROJECT_USER_DIR の下に src/transportModels/ ディレクトリを作成�
 拡張子がdepのファイルは不要なので削除する。
 >    rm *.dep
 
-ファイル名を変更する。（incompressibleTwoPhaseMixture.CからmyIncompressibleTwoPhaseMixture.Cに。incompressibleTwoPhaseMixture.HからmyIncompressibleTwoPhaseMixture.Hに。）
+　ファイル名を変更する。（incompressibleTwoPhaseMixture.CからmyIncompressibleTwoPhaseMixture.Cに。incompressibleTwoPhaseMixture.HからmyIncompressibleTwoPhaseMixture.Hに。）
 
 >    mv incompressibleTwoPhaseMixture.C myIncompressibleTwoPhaseMixture.C
 
 >    mv incompressibleTwoPhaseMixture.H myIncompressibleTwoPhaseMixture.H
 
-熱伝導率 k は、密度、定圧比熱、プラントル数 から求めることとする。k = rho cp / Pr
-定圧比熱とプラントル数を、新たな変数として、myIncompressibleTwoPhaseMixtureに組み込む。
+　熱伝導率 k は、密度 rho，定圧比熱 cp，プラントル数 Pr から求めることとする。k = rho cp / Pr
+　新たな変数として、定圧比熱とプラントル数を myIncompressibleTwoPhaseMixture に組み込む。
 
 
 ### myIncompressibleTwoPhaseMixture.H の修正
 
-myIncompressibleTwoPhaseMixture.Hファイルを修正する。incompressibleTwoPhaseMixture　を myIncompressibleTwoPhaseMixture に置換する。
+　myIncompressibleTwoPhaseMixture.Hファイルを修正する。incompressibleTwoPhaseMixture　を myIncompressibleTwoPhaseMixture に置換する。
 
 >    sed -i".org" -e "s/incompressibleTwoPhaseMixture/myIncompressibleTwoPhaseMixture/g" myIncompressibleTwoPhaseMixture.H
 
-myIncompressibleTwoPhaseMixture.Hファイル に定圧比熱（cp）とプラントル数（Pr）の宣言を追加する。密度宣言の下(68行目付近)に下記を追記する。変数名に付けた数字は，流体の種類を識別するために付けた。OpenFOAMでは，クラス内部の変数名の最後にはアンダーバーを付記する。
+　myIncompressibleTwoPhaseMixture.Hファイル に定圧比熱（cp）とプラントル数（Pr）の宣言を追加する。密度宣言の下(68行目付近)に下記を追記する。変数名に付けた数字は，流体の種類を識別するために付けた。OpenFOAMでは，クラス内部の変数名の最後にはアンダーバーを付記する。
 
     dimensionedScalar cp1_;
     dimensionedScalar cp2_;
     dimensionedScalar Pr1_;
     dimensionedScalar Pr2_;
 
-上記の変数をクラス外部から取得するための関数を定義する。rho1()関数（130行目付近）を参考にして，下記を追記する。
+　上記の変数をクラス外部から取得するための関数を定義する。rho1()関数（130行目付近）を参考にして，下記を追記する。
 
     //- Return const-access to phase1 cp
     const dimensionedScalar& cp1() const
@@ -173,12 +194,12 @@ myIncompressibleTwoPhaseMixture.Hファイル に定圧比熱（cp）とプラ�
         return Pr2_;
     }
 
-さらに，セル界面での熱伝導率を求める関数 kappaf()の定義を加える。muf()（157行目付近）を参考にして，下記を追加する。
+　さらに，セル界面での熱伝導率を求める関数 kappaf()の定義を加える。muf()（157行目付近）を参考にして，下記を追加する。
 
         //- Return the face-interpolated thermal conductivity
         tmp<surfaceScalarField> kappaf() const;
 
-myIncompressibleTwoPhaseMixture.H の修正はここまで。ファイルを上書き保存する。
+　myIncompressibleTwoPhaseMixture.H の修正はここまで。ファイルを上書き保存する。
 
 
 ### myIncompressibleTwoPhaseMixture.C の修正
@@ -255,9 +276,9 @@ myIncompressibleTwoPhaseMixture.C の修正はここまで。ファイルを上�
 <a name="modifySolver"></a>
 ## ソルバの修正
 
-　$WM_PROJECT_USER_DIR の下に applications/solvers/multiphase/ ディレクトリを作成する
-　ここに、$FOAM_APP/solvers/multiphase/interFoam の内容をコピーする。
-　そこにある incompressibleTwoPhaseMixture を改造するため、 myIncompressibleTwoPhaseMixture という名前に変換する。
+### 標準ライブラリのファイルをコピー
+
+　$WM_PROJECT_USER_DIR の下に applications/solvers/multiphase/ ディレクトリを作成する。　ここに，$FOAM_APP/solvers/multiphase/interFoam の内容をコピーする。
 
 >    cd $WM_PROJECT_USER_DIR
 
@@ -267,9 +288,11 @@ myIncompressibleTwoPhaseMixture.C の修正はここまで。ファイルを上�
 
 >    cp -rp $FOAM_APP/solvers/multiphase/interFoam .
 
+　ディレクトリ名を interFoam から interTempFoam に変更する。
+
 >    mv interFoam interTempFoam
 
-　ファイル名を変更する
+　ファイル名を interFoam.C から interTempFoam.C に変更する
 
 > cd interTempFoam
 
@@ -422,29 +445,37 @@ http://www.openfoam.org/docs/user/compiling-applications.php
 
 　既存のdamBreak例題を修正して、例題を作成する。
 
+### 標準チュートリアルのコピー
+
+　標準のdamBreak例題をコピーして，ユーザーの実行用ディレクトリ $FOAM_RUN の元に新たな例題 damBreakTemp を作成する。
+
 >    run
 
 >    cp -rp $FOAM_TUTORIALS/multiphase/interFoam/laminar/damBreak .
 
 >    mv damBreak/ damBreakTemp/
 
+
+
 >    cd damBreakTemp/
 
 　注意：上記コマンドの run は，OpenFOAMで設定しているalias。実行ディレクトリに移動する。
 
-　system/controlDict のapplication を interTempFoam に修正する
+### constant/transportProperties ファイルの修正
 
-　constant/transportProperties にcpとPrを追加する。
+　constant/transportProperties に cp と Pr を追加する。
 
-　water
+　water の物性値として，下記を rho の下に追加する。
 
     cp             cp [ 0 2 -2 -1 0 0 0 ] 4190;
     Pr             Pr [ 0 0 0 0 0 0 0 ] 10.0;
 
-　air
+　air の物性値として，下記を rho の下に追加する。
 
     cp             cp [ 0 2 -2 -1 0 0 0 ] 1000;
     Pr             Pr [ 0 0 0 0 0 0 0 ] 0.72;
+
+### 0/T ファイルの作成
 
 　0/alpha.water.org を参考にして、0/T.org を作成する。
 
@@ -461,11 +492,19 @@ http://www.openfoam.org/docs/user/compiling-applications.php
         type            zeroGradient;
     }
 
-　内部温度の初期値は，270とする。＊要検討
+　内部温度の初期値は，270 K とする。
+
+### system/controlDict ファイルの修正
+
+　system/controlDict のapplication を interTempFoam に修正する
+
+### system/fvSchemes ファイルの修正
 
 　system/fvSchemes に div(rhoCpPhi,T) の離散化方法を指定する。rhoPhi を参考に。
 
     div(rhoCpPhi,T)  Gauss linearUpwind grad(T);
+
+### system/fvSolution ファイルの修正
 
 　system/fvSolution に T式 の解法を指定する。＊要検討　PBiCGでもよい？他の温度ソルバ参考
 
@@ -476,6 +515,8 @@ http://www.openfoam.org/docs/user/compiling-applications.php
         tolerance       1e-07;
         relTol          0;
     }
+
+### system/setFieldsDict ファイルの修正
 
 　温度の初期分布を指定するため、system/setFieldsDict を編集する。default値を270Kとする。一部の領域の温度を300Kに設定する。
 
@@ -489,6 +530,8 @@ http://www.openfoam.org/docs/user/compiling-applications.php
             volScalarFieldValue T 300
         );
     }
+
+### 実行スクリプト Allrun と Allclean の修正
 
 　Allrun と Allclean を作成しておく。
 　たとえば，
@@ -516,15 +559,16 @@ http://www.openfoam.org/docs/user/compiling-applications.php
 
     div(rhoCpPhi,T)  Gauss upwind;
 
-paraFoam で可視化した結果の一例
+　paraFoam で可視化した結果の一例
+
 ![Alt text](./images/alphaInitialCondition.png "initial condition - alpha")
 
-Figure   Initial condition - alpha
+Figure: Initial condition - alpha
 
 ![Alt text](./images/tempInitialCondition.png "initial condition - temperature")
 
-Figure   Initial condition - temp
+Figure: Initial condition - temp
 
 ![Alt text](./images/temp_vector.png "high-temperature region and velocity vector")
 
-Figure   High-temperature region and velocity vector map
+Figure: High-temperature region and velocity vector map
