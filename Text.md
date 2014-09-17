@@ -16,6 +16,7 @@
 今回は，incompressibleTwoPhaseMixtureクラスはそのままとして，これをベースにした新しいクラスincompressibleTwoPhaseTempMixture を作成することにする。
 
 参考：過去の講習会テキスト
+
 https://github.com/snaka-dev/Training_begineer_OpenFOAM_Customize/blob/master/Text.md
 
 
@@ -23,9 +24,13 @@ https://github.com/snaka-dev/Training_begineer_OpenFOAM_Customize/blob/master/Te
 ## 手順 ##
 
 [環境変数の確認](#checkEnvVariables)
+
 1.   [ライブラリの改造	](#modifyLibrary)
+
 2.   [ソルバの修正](#modifySolver)
+
 3.   [サンプルケースの作成	](#createSampleCase)
+
 4.   [計算の実行](#tutorial)
 
 
@@ -90,9 +95,13 @@ $WM_PROJECT_USER_DIR の下に src/transportModels/ ディレクトリを作成�
 また，コンパイル時に必要なため，$FOAM_SRC/transportModels/twoPhaseMixtureもコピーする。
 
 >    cd $WM_PROJECT_USER_DIR
+
 >    mkdir -p src/transportModels/
+
 >    cd src/transportModels/
+
 >    cp -rp $FOAM_SRC/transportModels/incompressible .
+
 >    cp -rp $FOAM_SRC/transportModels/twoPhaseMixture .
 
 > cd incompressible
@@ -101,6 +110,7 @@ $WM_PROJECT_USER_DIR の下に src/transportModels/ ディレクトリを作成�
 元情報    mv incompressibleTwoPhaseMixture myIncompressibleTwoPhaseMixture
 
 >    cp -r incompressibleTwoPhaseMixture myIncompressibleTwoPhaseMixture
+
 >    cd myIncompressibleTwoPhaseMixture
 
 拡張子がdepのファイルは不要なので削除する。
@@ -109,6 +119,7 @@ $WM_PROJECT_USER_DIR の下に src/transportModels/ ディレクトリを作成�
 ファイル名を変更する。（incompressibleTwoPhaseMixture.CからmyIncompressibleTwoPhaseMixture.Cに。incompressibleTwoPhaseMixture.HからmyIncompressibleTwoPhaseMixture.Hに。）
 
 >    mv incompressibleTwoPhaseMixture.C myIncompressibleTwoPhaseMixture.C
+
 >    mv incompressibleTwoPhaseMixture.H myIncompressibleTwoPhaseMixture.H
 
 熱伝導率 k は、密度、定圧比熱、プラントル数 から求めることとする。k = rho cp / Pr
@@ -218,7 +229,9 @@ myIncompressibleTwoPhaseMixture.C の修正はここまで。ファイルを上�
 　これまで作業してきたディレクトリの1つ上に戻り，コンパイルを行う。まず，過去のコンパイル情報を削除するために wclean を実行し，次に，ライブラリのコンパイルコマンド wmake libso を実行する。
 
 >    cd $WM_PROJECT_USER_DIR/src/transportModels/incompressible
+
 >    wclean
+
 >    wmake libso
 
 　コンパイルに成功すると，$FOAM_USER_LIBBINディレクトリに，libmyIncompressibleTransportModels.so が作成される。
@@ -236,14 +249,19 @@ myIncompressibleTwoPhaseMixture.C の修正はここまで。ファイルを上�
 　そこにある incompressibleTwoPhaseMixture を改造するため、 myIncompressibleTwoPhaseMixture という名前に変換する。
 
 >    cd $WM_PROJECT_USER_DIR
+
 >    mkdir -p applications/solvers/multiphase/
+
 >    cd applications/solvers/multiphase/
+
 >    cp -rp $FOAM_APP/solvers/multiphase/interFoam .
+
 >    mv interFoam interTempFoam
 
 　ファイル名を変更する
 
 > cd interTempFoam
+
 > mv interFoam.C interTempFoam.C
 
 ### interTempFoam.C の修正
@@ -394,8 +412,11 @@ http://www.openfoam.org/docs/user/compiling-applications.php
 　既存のdamBreak例題を修正して、例題を作成する。
 
 >    run
+
 >    cp -rp $FOAM_TUTORIALS/multiphase/interFoam/laminar/damBreak .
+
 >    mv damBreak/ damBreakTemp/
+
 >    cd damBreakTemp/
 
 　注意：上記コマンドの run は，OpenFOAMで設定しているalias。実行ディレクトリに移動する。
