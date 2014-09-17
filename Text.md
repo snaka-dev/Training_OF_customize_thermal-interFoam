@@ -393,12 +393,9 @@ http://www.openfoam.org/docs/user/compiling-applications.php
 
 　既存のdamBreak例題を修正して、例題を作成する。
 
-> run
-
+>    run
 >    cp -rp $FOAM_TUTORIALS/multiphase/interFoam/laminar/damBreak .
-
 >    mv damBreak/ damBreakTemp/
-
 >    cd damBreakTemp/
 
 　注意：上記コマンドの run は，OpenFOAMで設定しているalias。実行ディレクトリに移動する。
