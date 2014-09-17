@@ -90,10 +90,10 @@ $WM_PROJECT_USER_DIR の下に src/transportModels/ ディレクトリを作成�
 また，コンパイル時に必要なため，$FOAM_SRC/transportModels/twoPhaseMixtureもコピーする。
 
 >    cd $WM_PROJECT_USER_DIR
-    mkdir -p src/transportModels/
-    cd src/transportModels/
-    cp -rp $FOAM_SRC/transportModels/incompressible .
-    cp -rp $FOAM_SRC/transportModels/twoPhaseMixture .
+>    mkdir -p src/transportModels/
+>    cd src/transportModels/
+>    cp -rp $FOAM_SRC/transportModels/incompressible .
+>    cp -rp $FOAM_SRC/transportModels/twoPhaseMixture .
 
 > cd incompressible
 
@@ -101,7 +101,7 @@ $WM_PROJECT_USER_DIR の下に src/transportModels/ ディレクトリを作成�
 元情報    mv incompressibleTwoPhaseMixture myIncompressibleTwoPhaseMixture
 
 >    cp -r incompressibleTwoPhaseMixture myIncompressibleTwoPhaseMixture
-    cd myIncompressibleTwoPhaseMixture
+>    cd myIncompressibleTwoPhaseMixture
 
 拡張子がdepのファイルは不要なので削除する。
 >    rm *.dep
@@ -109,7 +109,7 @@ $WM_PROJECT_USER_DIR の下に src/transportModels/ ディレクトリを作成�
 ファイル名を変更する。（incompressibleTwoPhaseMixture.CからmyIncompressibleTwoPhaseMixture.Cに。incompressibleTwoPhaseMixture.HからmyIncompressibleTwoPhaseMixture.Hに。）
 
 >    mv incompressibleTwoPhaseMixture.C myIncompressibleTwoPhaseMixture.C
-    mv incompressibleTwoPhaseMixture.H myIncompressibleTwoPhaseMixture.H
+>    mv incompressibleTwoPhaseMixture.H myIncompressibleTwoPhaseMixture.H
 
 熱伝導率 k は、密度、定圧比熱、プラントル数 から求めることとする。k = rho cp / Pr
 定圧比熱とプラントル数を、新たな変数として、myIncompressibleTwoPhaseMixtureに組み込む。
@@ -208,22 +208,22 @@ myIncompressibleTwoPhaseMixture.C の修正はここまで。ファイルを上�
 
 ### Make/files の修正とコンパイル
 
-Makeディレクトリ内のfilesファイルを修正する。最後の2行を，下記に変更し，保存する。
+　Makeディレクトリ内のfilesファイルを修正する。最後の2行を，下記に変更し，保存する。
 
     myIncompressibleTwoPhaseMixture/myIncompressibleTwoPhaseMixture.C
     LIB = $(FOAM_USER_LIBBIN)/libmyIncompressibleTransportModels
 
-上記2行目は，コンパイル後のライブラリの置き場所を，ユーザーカスタマイズライブラリの場所FOAM_USER_LIBBINとしている。
+　上記2行目は，コンパイル後のライブラリの置き場所を，ユーザーカスタマイズライブラリの場所FOAM_USER_LIBBINとしている。
 
-これまで作業してきたディレクトリの1つ上に戻り，コンパイルを行う。まず，過去のコンパイル情報を削除するために wclean を実行し，次に，ライブラリのコンパイルコマンド wmake libso を実行する。
+　これまで作業してきたディレクトリの1つ上に戻り，コンパイルを行う。まず，過去のコンパイル情報を削除するために wclean を実行し，次に，ライブラリのコンパイルコマンド wmake libso を実行する。
 
 >    cd $WM_PROJECT_USER_DIR/src/transportModels/incompressible
-    wclean
-    wmake libso
+>    wclean
+>    wmake libso
 
-コンパイルに成功すると，$FOAM_USER_LIBBINディレクトリに，libmyIncompressibleTransportModels.so が作成される。
+　コンパイルに成功すると，$FOAM_USER_LIBBINディレクトリに，libmyIncompressibleTransportModels.so が作成される。
 
-ソルバの修正に進む。
+　ソルバの修正に進む。
 
 [［手順一覧に戻る］](#tableOfContents)
 
@@ -236,27 +236,23 @@ Makeディレクトリ内のfilesファイルを修正する。最後の2行を�
 　そこにある incompressibleTwoPhaseMixture を改造するため、 myIncompressibleTwoPhaseMixture という名前に変換する。
 
 >    cd $WM_PROJECT_USER_DIR
-    mkdir -p applications/solvers/multiphase/
-    cd applications/solvers/multiphase/
-    cp -rp $FOAM_APP/solvers/multiphase/interFoam .
-
-おそらく不要    cd interFoam
-
+>    mkdir -p applications/solvers/multiphase/
+>    cd applications/solvers/multiphase/
+>    cp -rp $FOAM_APP/solvers/multiphase/interFoam .
 >    mv interFoam interTempFoam
 
-ファイル名を変更する
+　ファイル名を変更する
 
 > cd interTempFoam
 > mv interFoam.C interTempFoam.C
-> 
+
 ### interTempFoam.C の修正
 
 　先に作成した myIncompressibleTwoPhaseMixture を使うように，44行目を次に書き換える。
 
     #include "myIncompressibleTwoPhaseMixture.H"
 
-
-ソルバのソースコードで、TEqn.Hをインクルードする。pressure-velocity loop の後(109行目付近)に。
+　ソルバのソースコードで、TEqn.Hをインクルードする。pressure-velocity loop の後(109行目付近)に。
 
     #include "TEqn.H"
 
@@ -367,19 +363,19 @@ TEqn.solve();
 
 EXE_LIBSの修正は下記とする。
 
-EXE_LIBS = \
-    -ltwoPhaseMixture \
-    -linterfaceProperties \
-    -ltwoPhaseProperties \
-    -L$(FOAM_USER_LIBBIN) \
-    -lmyIncompressibleTransportModels \
-    -lincompressibleTurbulenceModel \
-    -lincompressibleRASModels \
-    -lincompressibleLESModels \
-    -lfiniteVolume \
-    -lmeshTools \
-    -lfvOptions \
-    -lsampling
+    EXE_LIBS = \
+        -ltwoPhaseMixture \
+        -linterfaceProperties \
+        -ltwoPhaseProperties \
+        -L$(FOAM_USER_LIBBIN) \
+        -lmyIncompressibleTransportModels \
+        -lincompressibleTurbulenceModel \
+        -lincompressibleRASModels \
+        -lincompressibleLESModels \
+        -lfiniteVolume \
+        -lmeshTools \
+        -lfvOptions \
+        -lsampling
 
 ーLを付けると，探しに行くディレクトリを指定する。-lを付けると，ファイルを指定する。この詳細は下記サイトに説明されている。
 
@@ -387,10 +383,7 @@ http://www.openfoam.org/docs/user/compiling-applications.php
 
 ### コンパイル
 
-コンパイルする。wcleanしてから、wmake。
-
-MEMO:
-基礎式を並べて、rhoPhi と rhoCpPhi との相似性を示しておくとよいのでは。
+　コンパイルする。wcleanしてから、wmake。
 
 [［手順一覧に戻る］](#tableOfContents)
 
@@ -398,12 +391,12 @@ MEMO:
 <a name="createSampleCase"></a>
 ## サンプルケースの作成
 
-既存のdamBreak例題を修正して、例題を作成する。
+　既存のdamBreak例題を修正して、例題を作成する。
 
 > run
-    cp -rp $FOAM_TUTORIALS/multiphase/interFoam/laminar/damBreak .
-    mv damBreak/ damBreakTemp/
-    cd damBreakTemp/
+>    cp -rp $FOAM_TUTORIALS/multiphase/interFoam/laminar/damBreak .
+>    mv damBreak/ damBreakTemp/
+>    cd damBreakTemp/
 
 　注意：上記コマンドの run は，OpenFOAMで設定しているalias。実行ディレクトリに移動する。
 
