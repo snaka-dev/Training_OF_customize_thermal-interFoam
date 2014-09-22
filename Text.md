@@ -8,36 +8,34 @@
 ## 環境 ##
 
 　この資料は，OpenFOAM 2.3.0 を基準として作成した。
-　
+
 　 *OpenFOAM 2.3.x では，コードに変更があるため，本資料のままではコンパイルすることができません。*
 
 ## 想定する受講者・前提知識 ##
 
-　OpenFOAMのごく基本的な事を知っている。（例題の1つや2つを実行したことがある。）
+- OpenFOAMのごく基本的な事を知っている。（例題の1つや2つを実行したことがある。）
 
-　何らかのプログラミング言語を学習したことがあり，プログラミングに関する基本的な知識がある。（変数，関数，型，などの基礎知識）
+- 何らかのプログラミング言語を学習したことがあり，プログラミングに関する基本的な知識がある。（変数，関数，型，などの基礎知識）
 
-　Linuxの端末上で，ごく基本的な操作ができる。（テキストに書いてあることをタイプして実行できる。）
+- Linuxの端末上で，ごく基本的な操作ができる。（テキストに書いてあることをタイプして実行できる。）
 
-　Linux上で，ファイルのコピーや移動ができる。　
+- Linux上で，ファイルのコピーや移動ができる。　
 
 ## 参考情報 ##
 [Adding temperature to InterFOAM, with edited source code (OpenFOAM v. 2.3.0); Damiano Natali (Wolf dynamics).](http://www.wolfdynamics.com/conferences-and-publications.html "Adding temperature to InterFOAM, with edited source code (OpenFOAM v. 2.3.0)")
 
-上記参考情報では，incompressibleTwoPhaseMixtureクラスを改造している。
+　上記参考情報では，incompressibleTwoPhaseMixtureクラスを改造している。
 
-今回は，incompressibleTwoPhaseMixtureクラスはそのままとして，これをベースにした新しいクラスincompressibleTwoPhaseTempMixture を作成することにする。
-
-参考：過去の講習会テキスト
-
-https://github.com/snaka-dev/Training_begineer_OpenFOAM_Customize/blob/master/Text.md
+　今回は，incompressibleTwoPhaseMixtureクラスはそのままとして，これをベースにした新しいクラスincompressibleTwoPhaseTempMixture を作成することにする。
 
 
 <a name="tableOfContents"></a>
 ## 目次 ##
 
-[環境変数の確認](#checkEnvVariables)
-
+0.   [準備](#pre)
+  1. [本書の標記](#remarks)
+  2. [Linuxコマンドの確認](#linuxCommand)
+  3. [環境変数](#checkEnvVariables)
 1.   [ライブラリの改造](#modifyLibrary)
   1. 標準ライブラリのファイルをコピー
   2. myIncompressibleTwoPhaseMixture.H の修正
@@ -65,9 +63,15 @@ https://github.com/snaka-dev/Training_begineer_OpenFOAM_Customize/blob/master/Te
   7. system/setFieldsDict ファイルの修正
   8. 実行スクリプト Allrun と Allclean の修正
 4.   [計算の実行](#tutorial)
+5.   [発展・備考](#further)
 
 
-## 本書の標記について
+
+<a name="pre"></a>
+## 準備
+
+<a name="remarks"></a>
+### 本書の標記について
 
 端末で実行するコマンド
 
@@ -78,8 +82,37 @@ https://github.com/snaka-dev/Training_begineer_OpenFOAM_Customize/blob/master/Te
     int n;
 
 
+<a name="linuxCommand"></a>
+### Linuxコマンドの確認
+
+端末内での実行場所移動：cd （チェンジ ディレクトリ）
+
+> cd _移動先_
+
+ディレクトリの作成：mkdir （メーク ディレクトリ）
+
+> mkdir _ディレクトリ名_
+
+　オプション　-p   親ディレクトリも同時に作成
+
+ファイルやディレクトリのコピー：cp （コピー）
+
+> cp _元ファイル_ _コピー先_
+
+オプション　-p   元のファイル属性を保持（preserve）
+オプション　-r   ディレクトリの中身もコピー ← 再帰的にコピー（recursive）
+
+ファイルやディレクトリの移動：mv （ムーブ）
+
+> mv _移動元_ _移動先_
+
+　このコマンドは，名前の変更にも使う。
+
+[［手順一覧に戻る］](#tableOfContents)
+
+
 <a name="checkEnvVariables"></a>
-## 環境変数の確認
+### 環境変数の確認
 
 環境変数の確認方法など。各自の環境変数を調べ，別紙に記入してください。
 
@@ -93,29 +126,6 @@ FOAM_USER_LIBBIN
 
 
 FOAM_USER_APPBIN
-
-
-## Linuxコマンドの確認
-
-端末内での実行場所移動：cd （チェンジ ディレクトリ）
-
-> cd _移動先_
-
-ディレクトリの作成：mkdir （メーク ディレクトリ）
-
-> mkdir _ディレクトリ名_
-
-オプション　-p   親ディレクトリも同時に作成
-
-> cp
-
-オプション　-p   元のファイル属性を保持（preserve）
-オプション　-r   ディレクトリの中身もコピー ← 再帰的にコピー（recursive）
-
-> mv
-
-
-[［手順一覧に戻る］](#tableOfContents)
 
 
 
@@ -574,3 +584,31 @@ Figure: Initial condition - temp
 ![Alt text](./images/temp_vector.png "high-temperature region and velocity vector")
 
 Figure: High-temperature region and velocity vector map
+
+
+
+<a name="further"></a>
+## 発展
+
+　今回の改造では，温度場が流れや物性値に与える影響を考慮していない。温度場は，これらに影響を与えないパッシブスカラーとして扱った。
+
+　実際には，温度による密度変化に起因する浮力，温度による表面張力変化に起因するマランゴニ効果など，検討すべき事項が存在する。これらについて，詳細な議論およびOpenFOAMへの実装が下記論文に記述されている。
+
+[Marangoni driven free surface flows in liquid weld pools, Zaki Saptari SALDI, Ph.D. thesis Delft University of Technology (2012)](http://repository.tudelft.nl/assets/uuid:8401374b-9e9c-4d25-86b7-fc445ec73d27/PhD_Thesis_ZSSALDI.pdf)
+
+　OpenFOAM の interFoam系ソルバでは，標準状態では速度場の方程式を直接解く前に，圧力場の式を解く。これは，fvSolutionのmomentumPredictorのyes/noによって制御する。
+
+http://www.cfd-online.com/Forums/openfoam-solving/58067-when-set-momentumpredictor-yes.html
+
+
+
+
+
+参考：過去の講習会テキスト
+
+https://github.com/snaka-dev/Training_begineer_OpenFOAM_Customize/blob/master/Text.md
+
+
+
+
+　本資料の作成にあたって，オープンCAE勉強会で活躍中の山本氏から貴重な意見をいただいた。ここに記して，謝意を表する。
