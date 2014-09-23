@@ -137,16 +137,21 @@ FOAM_USER_APPBIN
 ### 基礎式
 
 連続の式
+
 ![Alt text](./images/continuity_eq.png "連続の式")
 
 VOF
+
 ![Alt text](./images/vof_eq.png "VOF")
 
 運動量輸送式
+
 ![Alt text](./images/momentum_eq.png "運動量輸送式")
+
 ![Alt text](./images/s_g.png "Sg")　重力項，![Alt text](./images/s_sigma.png "Ssigma") 表面張力項
 
 エネルギ輸送式
+
 ![Alt text](./images/energy_eq.png "エネルギ輸送式")
 
 　熱伝導率 k は、密度 rho，定圧比熱 cp，プラントル数 Pr から求めることとする。k = rho cp / Pr
