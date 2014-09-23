@@ -36,6 +36,7 @@
   1. [本書の標記](#remarks)
   2. [Linuxコマンドの確認](#linuxCommand)
   3. [環境変数](#checkEnvVariables)
+0. [方針](#how)
 1.   [ライブラリの改造](#modifyLibrary)
   1. 標準ライブラリのファイルをコピー
   2. myIncompressibleTwoPhaseMixture.H の修正
@@ -108,8 +109,6 @@
 
 　このコマンドは，名前の変更にも使う。
 
-[［手順一覧に戻る］](#tableOfContents)
-
 
 <a name="checkEnvVariables"></a>
 ### 環境変数の確認
@@ -127,6 +126,34 @@ FOAM_USER_LIBBIN
 
 FOAM_USER_APPBIN
 
+
+[［手順一覧に戻る］](#tableOfContents)
+
+
+
+<a name="how"></a>
+## 方針
+
+### 基礎式
+
+連続の式
+![Alt text](./images/continuity_eq.png "連続の式")
+
+VOF
+![Alt text](./images/vof_eq.png "VOF")
+
+運動量輸送式
+![Alt text](./images/momentum_eq.png "運動量輸送式")
+![Alt text](./images/s_g.png "Sg")　重力項，![Alt text](./images/s_sigma.png "Ssigma") 表面張力項
+
+エネルギ輸送式
+![Alt text](./images/energy_eq.png "エネルギ輸送式")
+
+　熱伝導率 k は、密度 rho，定圧比熱 cp，プラントル数 Pr から求めることとする。k = rho cp / Pr
+　新たな変数として、定圧比熱とプラントル数を myIncompressibleTwoPhaseMixture に組み込む。
+
+
+[［手順一覧に戻る］](#tableOfContents)
 
 
 <a name="modifyLibrary"></a>
