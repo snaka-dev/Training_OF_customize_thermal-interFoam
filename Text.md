@@ -632,7 +632,9 @@ Figure: High-temperature region and velocity vector map
 
 http://www.cfd-online.com/Forums/openfoam-solving/58067-when-set-momentumpredictor-yes.html
 
+OpenFOAM 2.3.x での変更について
 
+　OpenFOAM 2.3.x では，interFoam　でのライブラリに変更が加わった。incompressibleTwoPhaseMixture を使わず，immiscibleIncompressibleTwoPhaseMixture が新設され，使われている。ただし，immiscibleIncompressibleTwoPhaseMixture は incompressibleTwoPhaseMixture を継承しており，その部分に変化はない。immiscibleIncompressibleTwoPhaseMixtureは，incompressibleTwoPhaseMixture と interfaceProperties を継承している。これまでは，interFoamソルバコードで両者を扱っていたが，今回から両者をまとめてimmiscibleIncompressibleTwoPhaseMixtureからアクセスする。コードの再利用性を高める作業の一環らしい。
 
 
 
