@@ -238,7 +238,7 @@ VOF
         return Pr2_;
     }
 
-　さらに，セル界面での熱伝導率を求める関数 kappaf()の定義を加える。muf()（157行目付近）を参考にして，下記を追加する。
+　さらに，セル界面での熱伝導率を求める関数 kappaf()の宣言を加える。muf()（157行目付近）を参考にして，下記を追加する。
 
         //- Return the face-interpolated thermal conductivity
         tmp<surfaceScalarField> kappaf() const;
