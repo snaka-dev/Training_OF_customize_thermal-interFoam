@@ -43,6 +43,7 @@
   3. myIncompressibleTwoPhaseMixture.C の修正
       - コンストラクタの修正
       - read()関数の修正
+      - kappaf()関数の定義の追加
   4. Make/files の修正とコンパイル
 2.   [ソルバの修正](#modifySolver)
   1. 標準ソルバのファイルをコピー
@@ -270,6 +271,8 @@ VOF
     nuModel1_->viscosityProperties().lookup("Pr") >> Pr1_;
     nuModel2_->viscosityProperties().lookup("Pr") >> Pr2_;
 
+#### kappaf()関数の定義の追加
+
 熱伝導率を求める関数 kappaf()を作成する。粘度を求める関数muf()（145行目付近）を参考にして，下記を追加する。
 
     Foam::tmp<Foam::surfaceScalarField>
@@ -320,9 +323,9 @@ myIncompressibleTwoPhaseMixture.C の修正はここまで。ファイルを上�
 <a name="modifySolver"></a>
 ## ソルバの修正
 
-### 標準ライブラリのファイルをコピー
+### 標準ソルバのファイルをコピー
 
-　$WM_PROJECT_USER_DIR の下に applications/solvers/multiphase/ ディレクトリを作成する。　ここに，$FOAM_APP/solvers/multiphase/interFoam の内容をコピーする。
+　$WM_PROJECT_USER_DIR の下に applications/solvers/multiphase/ ディレクトリを作成する。ここに，$FOAM_APP/solvers/multiphase/interFoam の内容をコピーする。
 
 >    cd $WM_PROJECT_USER_DIR
 
@@ -397,7 +400,7 @@ myIncompressibleTwoPhaseMixture.C の修正はここまで。ファイルを上�
     );
     rhoCp.oldTime();
 
-　rhoPhi （95行目付近）を参考に，rhoPhiCp を作成する。
+　rhoPhi （95行目付近）を参考に，rhoCpPhi を作成する。
 
     surfaceScalarField rhoCpPhi
     (
@@ -414,7 +417,9 @@ myIncompressibleTwoPhaseMixture.C の修正はここまで。ファイルを上�
 
 ### alphaEqnSubCycle.H の修正
 
-　rho （33行目付近）を参考に，rhoCp の計算を、alphaEqnSubCycle.H に入れる。。
+　rho （33行目付近）を参考に，rhoCp の計算を、alphaEqnSubCycle.H に入れる。
+
+    rhoCp == alpha1*rho1*cp1 + alpha2*rho2*cp2;
 
 ### alphaEqn.H の修正
 
