@@ -445,7 +445,7 @@ myIncompressibleTwoPhaseMixture.C の修正はここまで。ファイルを上�
         - fvm::laplacian(kappaf,T)
     );
 
-TEqn.solve();
+    TEqn.solve();
 
 
 ### Make/files の修正
@@ -486,6 +486,15 @@ http://www.openfoam.org/docs/user/compiling-applications.php
 
 　コンパイルする。wcleanしてから、wmake。
 
+>    cd $WM_PROJECT_USER_DIR/applications/solvers/multiphase/interTempFoam
+
+>    wclean
+
+>    wmake
+
+　コンパイルに成功すると，先ほどfilesファイルで指定した場所に，指定した名前の実行ファイルが作成される。
+
+
 [［手順一覧に戻る］](#tableOfContents)
 
 
@@ -503,8 +512,6 @@ http://www.openfoam.org/docs/user/compiling-applications.php
 >    cp -rp $FOAM_TUTORIALS/multiphase/interFoam/laminar/damBreak .
 
 >    mv damBreak/ damBreakTemp/
-
-
 
 >    cd damBreakTemp/
 
@@ -534,24 +541,28 @@ http://www.openfoam.org/docs/user/compiling-applications.php
 
     dimensions      [0 0 0 1 0 0 0];
 
-　上部大気開放部の境界条件を温度勾配0にしてみる。＊要検討
+　内部温度の初期値は，270 K とする。internalField の行を下記とする。
+
+    internalField   uniform 270;
+
+　上部大気開放部の境界条件を温度勾配0にしてみる。atmosphere部分を下記に変更する。
 
     atmosphere
     {
         type            zeroGradient;
     }
 
-　内部温度の初期値は，270 K とする。
 
 ### system/controlDict ファイルの修正
 
-　system/controlDict のapplication を interTempFoam に修正する
+　system/controlDict のapplication を interTempFoam に修正する。後ほど作成するAllrunスクリプトでは，この部分から実行するソルバを選択するため，修正が必要である。
 
 ### system/fvSchemes ファイルの修正
 
 　system/fvSchemes に div(rhoCpPhi,T) の離散化方法を指定する。rhoPhi を参考に。
 
-    div(rhoCpPhi,T)  Gauss linearUpwind grad(T);
+    div(rhoCpPhi,T)  Gauss upwind;
+
 
 ### system/fvSolution ファイルの修正
 
@@ -567,9 +578,13 @@ http://www.openfoam.org/docs/user/compiling-applications.php
 
 ### system/setFieldsDict ファイルの修正
 
-　温度の初期分布を指定するため、system/setFieldsDict を編集する。default値を270Kとする。一部の領域の温度を300Kに設定する。
+　温度の初期分布を指定するため、system/setFieldsDict を編集する。
+
+　default値を270Kとする。defaultFieldValues に，下記の行を追加する。
 
     volScalarFieldValue T 270
+
+　一部の領域の温度を300Kに設定する。regionsに，下記を追加する。
 
     boxToCell
     {
@@ -600,13 +615,18 @@ http://www.openfoam.org/docs/user/compiling-applications.php
 <a name="tutorial"></a>
 ## 計算の実行
 
-　下記の設定では，初期設定の最高温度を超える温度が出現する。
+　先ほど作成したAllrunスクリプトを実行することで，メッシュ生成，初期条件設定，計算の一連のコマンドを自動実行させる。
 
-    div(rhoCpPhi,T)  Gauss linearUpwind grad(T);
+> ./Allrun
 
-　下記の設定では，初期設定の最高温度を超えることはない。
+　条件等を変更し，再度計算を行うときは，Allcleanを実行した後に，Allrunを実行する。
 
-    div(rhoCpPhi,T)  Gauss upwind;
+> ./Allclean
+> ./Allrun
+
+　実行結果を確認するため，下記コマンドを実行してparaviewを起動する。
+
+> paraFoam
 
 　paraFoam で可視化した結果の一例
 
@@ -641,6 +661,9 @@ OpenFOAM 2.3.x での変更について
 
 　OpenFOAM 2.3.x では，interFoam　でのライブラリに変更が加わった。incompressibleTwoPhaseMixture を使わず，immiscibleIncompressibleTwoPhaseMixture が新設され，使われている。ただし，immiscibleIncompressibleTwoPhaseMixture は incompressibleTwoPhaseMixture を継承しており，その部分に変化はない。immiscibleIncompressibleTwoPhaseMixtureは，incompressibleTwoPhaseMixture と interfaceProperties を継承している。これまでは，interFoamソルバコードで両者を扱っていたが，今回から両者をまとめてimmiscibleIncompressibleTwoPhaseMixtureからアクセスする。コードの再利用性を高める作業の一環らしい。
 
+　離散化：　下記の設定では，初期設定の最高温度を超える温度が出現する。
+
+    div(rhoCpPhi,T)  Gauss linearUpwind grad(T);
 
 
 参考：過去の講習会テキスト
@@ -651,3 +674,6 @@ https://github.com/snaka-dev/Training_begineer_OpenFOAM_Customize/blob/master/Te
 
 
 　本資料の作成にあたって，オープンCAE勉強会で活躍中の山本氏から貴重な意見をいただいた。ここに記して，謝意を表する。
+
+　本資料を使ったオープンCAE勉強会＠富山（2014年9月27日）の参加者から，多くのフィードバックをいただいた。ここに記して，謝意を表する。
+
