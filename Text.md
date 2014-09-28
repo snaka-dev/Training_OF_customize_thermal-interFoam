@@ -1,6 +1,16 @@
 
 # OpenFOAMのカスタマイズ・ソースコード改造入門（interFoam への温度場計算追加） #
 
+This offering is not approved or endorsed by ESI Group or ESI-OpenCFD®, the producer of the OpenFOAM® software and owner of the OpenFOAM® trade mark. 
+
+[Training materials for mini lecture course for OpenCAE Study Group @ Toyama.](http://eddy.pu-toyama.ac.jp/%E3%82%AA%E3%83%BC%E3%83%97%E3%83%B3CAE%E5%8B%89%E5%BC%B7%E4%BC%9A-%E5%AF%8C%E5%B1%B1/)
+
+Source codes will be availabe at the git hub:
+https://github.com/snaka-dev/Training_OF_customize_thermal-interFoam
+
+Author of this document: Shinji NAKAGAWA (Toyama Prefectural University)
+
+
 ## 目的 ##
 
 　OpenFOAM の標準ソルバ・標準ライブラリの改造に挑戦し，OpenFOAMのプログラミングについて学習する。
@@ -273,7 +283,7 @@ VOF
 
 #### kappaf()関数の定義の追加
 
-熱伝導率を求める関数 kappaf()を作成する。粘度を求める関数muf()（145行目付近）を参考にして，下記を追加する。
+　熱伝導率を求める関数 kappaf()を作成する。粘度を求める関数muf()（145行目付近）を参考にして，下記を追加する。ここで，温度拡散係数 a=k/rho/cp，Pr=nu/a から，k = rho cp nu / Pr となる。
 
     Foam::tmp<Foam::surfaceScalarField>
     Foam::myIncompressibleTwoPhaseMixture::kappaf() const
@@ -379,7 +389,7 @@ myIncompressibleTwoPhaseMixture.C の修正はここまで。ファイルを上�
         mesh
     );
 
-　cp1とcp2とを、twoPhasePropertiesから読み込む。rho1とrho2（55行目付近）を参考にする。
+　cp1とcp2とを、twoPhaseProperties（=先に改造したクラス(ライブラリ)のオブジェクト）から読み込む。rho1とrho2（55行目付近）を参考にする。
 
     const dimensionedScalar& cp1 = twoPhaseProperties.cp1();
     const dimensionedScalar& cp2 = twoPhaseProperties.cp2();
