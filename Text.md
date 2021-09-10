@@ -25,18 +25,17 @@ Author of this document: Shinji NAKAGAWA (Toyama Prefectural University)
 
 - OpenFOAMのごく基本的な事を知っている。（例題の1つや2つを実行したことがある。）
 
-- 何らかのプログラミング言語を学習したことがあり，プログラミングに関する基本的な知識がある。（変数，関数，型，などの基礎知識）
-
-- Linuxの端末上で，ごく基本的な操作ができる。（テキストに書いてあることをタイプして実行できる。）
+- 何らかのプログラミング言語を学習したことがあり，プログラミングに関する基本的な知識がある。（変数，関数，型，分岐，繰り返し，などの基礎知識）
 
 - Linux上で，ファイルのコピーや移動ができる。　
+
+- Linuxの端末上で，ごく基本的な操作ができる。（テキストに書いてあるコマンドをタイプして実行できる。）
+
 
 ## 参考情報 ##
 [Adding temperature to InterFOAM, with edited source code (OpenFOAM v. 2.3.0); Damiano Natali (Wolf dynamics).](http://www.wolfdynamics.com/conferences-and-publications.html "Adding temperature to InterFOAM, with edited source code (OpenFOAM v. 2.3.0)")
 
-　上記参考情報では，incompressibleTwoPhaseMixtureクラスを改造している。
-
-　今回は，incompressibleTwoPhaseMixtureクラスはそのままとして，これをベースにした新しいクラスincompressibleTwoPhaseTempMixture を作成することにする。
+　上記参考情報では，incompressibleTwoPhaseMixtureクラスを改造している。今回は，incompressibleTwoPhaseMixtureクラスはそのままとして，これをベースにした新しいクラスincompressibleTwoPhaseTempMixture を作成することにする。
 
 
 <a name="tableOfContents"></a>
@@ -48,7 +47,7 @@ Author of this document: Shinji NAKAGAWA (Toyama Prefectural University)
   3. [環境変数](#checkEnvVariables)
 0. [方針](#how)
 1.   [ライブラリの改造](#modifyLibrary)
-  1. 標準ライブラリのファイルをコピー
+  1. 標準ライブラリ（incompressibleTwoPhaseMixture）のファイルをコピー
   2. myIncompressibleTwoPhaseMixture.H の修正
   3. myIncompressibleTwoPhaseMixture.C の修正
       - コンストラクタの修正
@@ -56,7 +55,7 @@ Author of this document: Shinji NAKAGAWA (Toyama Prefectural University)
       - kappaf()関数の定義の追加
   4. Make/files の修正とコンパイル
 2.   [ソルバの修正](#modifySolver)
-  1. 標準ソルバのファイルをコピー
+  1. 標準ソルバ（interFoam）のファイルをコピー
   2. interTempFoam.C の修正
   3. createFields.H の修正
   4. alphaEqnSubCycle.H の修正
@@ -112,6 +111,7 @@ Author of this document: Shinji NAKAGAWA (Toyama Prefectural University)
 > cp _元ファイル_ _コピー先_
 
 オプション　-p   元のファイル属性を保持（preserve）
+
 オプション　-r   ディレクトリの中身もコピー ← 再帰的にコピー（recursive）
 
 ファイルやディレクトリの移動：mv （ムーブ）
@@ -132,10 +132,12 @@ Author of this document: Shinji NAKAGAWA (Toyama Prefectural University)
 ユーザーのOpenFOAM関連ファイル格納場所：$WM_PROJECT_USER_DIR
 > echo $WM_PROJECT_USER_DIR
 
+ユーザーのソルバ（実行ファイル）格納場所
+FOAM_USER_APPBIN
+
+ユーザーのライブラリ（バイナリ）格納場所
 FOAM_USER_LIBBIN
 
-
-FOAM_USER_APPBIN
 
 
 [［手順一覧に戻る］](#tableOfContents)
@@ -151,7 +153,7 @@ FOAM_USER_APPBIN
 
 ![Alt text](./images/continuity_eq.png "連続の式")
 
-VOF
+流体の体積分率（Volume Of Fluid) の保存式
 
 ![Alt text](./images/vof_eq.png "VOF")
 
@@ -181,6 +183,8 @@ VOF
 
 　$WM_PROJECT_USER_DIR の下に src/transportModels/ ディレクトリを作成する。ここに、$FOAM_SRC/transportModels/incompressible の内容をコピーする。また，コンパイル時に必要なため，$FOAM_SRC/transportModels/twoPhaseMixtureもコピーする。
 
+>   ［ファイルのコピー等のコマンド操作；GUIでの操作も可能］
+>   
 >    cd $WM_PROJECT_USER_DIR
 
 >    mkdir -p src/transportModels/
@@ -194,6 +198,8 @@ VOF
 
 　コピーした incompressibleTwoPhaseMixture を改造するため、 myIncompressibleTwoPhaseMixture という名前に変換する。
 
+>   ［コマンド例；GUIでも可］
+>   
 >    cd incompressible
 
 >    cp -r incompressibleTwoPhaseMixture myIncompressibleTwoPhaseMixture
